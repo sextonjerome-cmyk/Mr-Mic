@@ -7,6 +7,14 @@ Communications defaults, so Discord follows. Also reads headset battery straight
 dongle. Built because flipping devices by hand in Volume Mixer before every DCS/Discord
 session was misery.
 
+Think of it as being in the same family as **EarTrumpet** — a small Windows tray utility
+for audio, with the middle-click mixer for per-app volume. Where it goes further is the
+automatic switching: turn the headset on, and Windows follows without being asked.
+
+It is a self-contained app. It is **not** related to any other project in this folder,
+and in particular has nothing to do with CobbAttack (that one is voice recognition for
+DCS — a completely different program that happens to also be written in Python).
+
 Binding rules live in `.claude/rules/` and load automatically:
 `audio-api.md` (CoreAudio/IPolicyConfig + battery HID protocol), `ui-theme.md`
 (CobbAttack palette, look-and-feel), `quality.md` (testing gates, budgets).
@@ -36,11 +44,16 @@ Devices are matched by saved endpoint ID first, name substring as fallback.
 - `tools/probe_devices.py` — list endpoints / `--watch` for state changes
 - `run-mrmic.bat` — hidden launcher (pythonw)
 
-## Sibling project
+## Standalone — where the look came from
 
-CobbAttack (`../CobbAttack/`, formerly the `Viacom project/` folder) is the styling and
-conventions reference — same theme
-constants, settings.json pattern, PyInstaller packaging. Copy patterns, not dependencies.
+**Mr. Mic is its own app and does not relate to any other project here.** It switches
+audio devices for a headset. That's the whole job.
+
+One cosmetic thing was borrowed at the start: the hex values in `theme.py` were
+hand-copied from CobbAttack (`../CobbAttack/ui.py`), an unrelated DCS voice-recognition
+app, along with its `settings.json` layout and PyInstaller packaging approach. That is
+history, not a dependency — nothing is imported, nothing needs to stay in sync, and
+Mr. Mic's colors can change freely without looking at CobbAttack at all.
 
 ## Packaging
 
