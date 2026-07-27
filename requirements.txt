@@ -1,0 +1,6 @@
+pycaw
+comtypes
+keyboard
+pystray
+Pillow
+hidapi

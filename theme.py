@@ -1,0 +1,12 @@
+"""Mr. Mic theme — same palette as CobbAttack (../Viacom project/ui.py)."""
+
+BG = "#14181d"
+PANEL = "#1c2229"
+FIELD = "#242c35"
+TEXT = "#d7dde3"
+DIM = "#7a8794"
+GREEN = "#5dd08c"
+AMBER = "#e8b33e"
+RED = "#e06c5b"
+BLUE = "#5aa7e0"
+BORDER = "#34455a"

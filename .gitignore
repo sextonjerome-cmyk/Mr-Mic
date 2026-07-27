@@ -1,0 +1,15 @@
+# build output
+build/
+dist/
+MrMic.exe
+MrMic.spec
+__pycache__/
+*.pyc
+
+# runtime files
+mrmic.log
+assets/
+
+# temp
+smoke_err.txt
+flip_test_result.txt

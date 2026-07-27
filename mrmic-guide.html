@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mr. Mic — Guide</title>
+<style>
+  :root {
+    --bg: #14181d; --panel: #1c2229; --field: #242c35; --text: #d7dde3;
+    --dim: #7a8794; --green: #5dd08c; --amber: #e8b33e; --red: #e06c5b;
+    --blue: #5aa7e0; --border: #34455a;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: "Segoe UI", sans-serif;
+         max-width: 780px; margin: 0 auto; padding: 24px 20px 60px; line-height: 1.55; }
+  h1 { color: var(--green); font-size: 26px; margin-bottom: 4px; }
+  .sub { color: var(--dim); margin-top: 0; }
+  h2 { color: var(--blue); font-size: 18px; border-bottom: 1px solid var(--border);
+       padding-bottom: 6px; margin-top: 34px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+          padding: 14px 18px; margin: 14px 0; }
+  kbd { background: var(--field); border: 1px solid var(--border); border-radius: 5px;
+        padding: 2px 8px; font-family: Consolas, monospace; font-size: 13px; color: var(--amber); }
+  code { background: var(--field); border-radius: 4px; padding: 1px 6px;
+         font-family: Consolas, monospace; font-size: 13px; color: var(--green); }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+  td, th { padding: 7px 10px; border-bottom: 1px solid var(--field); text-align: left; }
+  th { color: var(--dim); font-weight: 600; font-size: 13px; }
+  .g { color: var(--green); } .a { color: var(--amber); } .d { color: var(--dim); }
+  .r { color: var(--red); } .b { color: var(--blue); }
+  li { margin: 5px 0; }
+</style>
+</head>
+<body>
+  <h1>🎧 Mr. Mic</h1>
+  <p class="sub">One key — or just the headset power button — switches everything.</p>
+
+  <div class="card">
+    <b>What it does:</b> switches the Windows default <b>speaker AND microphone</b> together
+    between your HyperX Cloud II Core Wireless and the laptop speakers + mic — including the
+    communications device Discord uses. Shows headset battery. Has a built-in per-app mixer.
+  </div>
+
+  <h2>Everyday use</h2>
+  <table>
+    <tr><th>Action</th><th>What happens</th></tr>
+    <tr><td>Turn headset <b>on</b></td><td>Everything switches to HyperX (~2 s) — rising chime</td></tr>
+    <tr><td>Turn headset <b>off</b></td><td>Everything switches to laptop (~4 s) — falling chime</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>H</kbd></td><td>Manual toggle, anytime</td></tr>
+    <tr><td><b>Left-click</b> tray icon</td><td>Manual toggle</td></tr>
+    <tr><td><b>Middle-click</b> (mouse wheel) tray icon</td><td>Opens the mixer</td></tr>
+    <tr><td><b>Right-click</b> tray icon</td><td>Menu: devices, battery, settings, exit</td></tr>
+  </table>
+
+  <h2>Tray icon colors</h2>
+  <table>
+    <tr><td><span class="g">●</span> Green headset</td><td>You're on the HyperX</td></tr>
+    <tr><td><span class="a">●</span> Orange speaker</td><td>You're on laptop speakers + mic</td></tr>
+    <tr><td><span class="d">●</span> Gray speaker</td><td>Some other device is default (e.g. ButtKicker)</td></tr>
+  </table>
+  <p>Hover the icon to see current devices and <b>battery %</b>. Low-battery warning pops at 20%.</p>
+
+  <h2>The mixer (middle-click)</h2>
+  <ul>
+    <li>Each output device: name, master slider, 🔊 <b>mute button</b> on the right.</li>
+    <li>Each app under it: <b>icon + slider</b>. <b>Click the icon to mute/unmute that app</b> (icon dims when muted). Hover the icon to see the app's name.</li>
+    <li>🎤 rows at the bottom: your microphones' input levels — turn the laptop mic down here if a dictation app picks up room noise.</li>
+    <li>The <b>●</b> marks the current default device. <kbd>Esc</kbd> or click away to close.</li>
+  </ul>
+
+  <h2>Changing the hotkey</h2>
+  <p>Right-click → <b>Edit settings</b> → change <code>"hotkey"</code> → right-click → <b>Reload settings</b>. Examples:</p>
+  <table>
+    <tr><td><code>ctrl+alt+h</code></td><td>modifier combo (default)</td></tr>
+    <tr><td><code>pause</code></td><td>one single key</td></tr>
+    <tr><td><code>v+c</code></td><td>two keys pressed together</td></tr>
+    <tr><td><code>shift+ctrl+p</code></td><td>any modifier mix</td></tr>
+  </table>
+
+  <h2>Settings quick reference (settings.json)</h2>
+  <table>
+    <tr><td><code>chime</code></td><td>switch sounds on/off</td></tr>
+    <tr><td><code>notifications</code></td><td>Windows toast on switch (off by default)</td></tr>
+    <tr><td><code>autodetect</code></td><td>follow the headset power button</td></tr>
+    <tr><td><code>battery_warn</code></td><td>low-battery warning level (default 20)</td></tr>
+    <tr><td><code>aliases</code></td><td>short display names for devices</td></tr>
+  </table>
+
+  <h2>Tips &amp; troubleshooting</h2>
+  <ul>
+    <li><b>Discord:</b> set its input/output to <b>Default</b> in Voice settings once — then it always follows Mr. Mic.</li>
+    <li><b>Parlez/dictation going crazy on switch?</b> Pin it to the HyperX mic in its own settings, or lower the laptop mic in the mixer.</li>
+    <li><b>Battery shows “—”:</b> headset is off (that's also how auto-detect knows).</li>
+    <li><b>App not running?</b> Double-click <code>MrMic.exe</code> (or <code>run-mrmic.bat</code>). It also autostarts with Windows. A second copy won't start twice — that's intentional.</li>
+    <li><b>Gaming:</b> Mr. Mic runs at below-normal priority, ~0.05% CPU, no GPU — it cannot affect DCS/VR performance.</li>
+    <li><b>Logs:</b> <code>mrmic.log</code> next to the app records every switch.</li>
+  </ul>
+</body>
+</html>

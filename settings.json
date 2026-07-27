@@ -1,0 +1,31 @@
+{
+  "hotkey": "ctrl+alt+h",
+  "_hotkey_examples": "ctrl+alt+h | pause | v+c (two keys pressed together) | shift+ctrl+p",
+  "notifications": false,
+  "chime": true,
+  "autodetect": true,
+  "poll_seconds": 2,
+  "battery_warn": 20,
+  "aliases": {
+    "HyperX": "HyperX",
+    "Speakers (Realtek": "Laptop speakers",
+    "Realtek": "Laptop",
+    "Microphone Array": "Laptop mic",
+    "USB2.0": "ButtKicker",
+    "Virtual Desktop": "Virtual Desktop"
+  },
+  "profiles": {
+    "headset": {
+      "output_match": "HyperX",
+      "output_id": "{0.0.0.00000000}.{1d962cfa-443c-4966-a61d-aaeba7816514}",
+      "input_match": "HyperX",
+      "input_id": "{0.0.1.00000000}.{3304690b-d782-4768-a6f7-434054ef11c3}"
+    },
+    "laptop": {
+      "output_match": "Speakers (Realtek",
+      "output_id": "{0.0.0.00000000}.{b99c08ac-8afd-45ba-9979-a1706e6a7750}",
+      "input_match": "Microphone Array",
+      "input_id": "{0.0.1.00000000}.{3b7a97e2-c32c-4034-a86a-45b725ded57d}"
+    }
+  }
+}
