@@ -56,4 +56,9 @@ User guide: `mrmic-guide.html` (linked from the tray menu).
   like the HyperX one. No dongle to query — likely path is ADB (`adb shell dumpsys
   battery` over Wi-Fi/USB, needs developer mode enabled on the Quest) or whatever
   Virtual Desktop exposes; investigate both. He uses Virtual Desktop, not Link.
+- **Proper installer** (Jerome asked 2026-07-27): ship a real Windows installer instead
+  of handing someone a zip. Should put Mr. Mic somewhere sane (not OneDrive), create the
+  Start Menu + autostart shortcuts, bundle `mrmic.ico` and `mrmic-guide.html`, and
+  uninstall cleanly while leaving `settings.json` alone. Inno Setup is the likely tool
+  (free, single .iss script, plays well with a PyInstaller onefile exe).
 - Voice control via the Whisper stack ("Mr. Mic, headset!").
