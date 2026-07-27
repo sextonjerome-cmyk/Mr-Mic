@@ -51,4 +51,9 @@ User guide: `mrmic-guide.html` (linked from the tray menu).
 
 ## Planned (not built yet)
 
-Voice control via the Whisper stack ("Mr. Mic, headset!").
+- **Quest 3 battery** (next session): show headset battery for Jerome's Meta Quest 3 in
+  the tray menu (when Quest/Virtual Desktop output is selected) and in the mixer header,
+  like the HyperX one. No dongle to query — likely path is ADB (`adb shell dumpsys
+  battery` over Wi-Fi/USB, needs developer mode enabled on the Quest) or whatever
+  Virtual Desktop exposes; investigate both. He uses Virtual Desktop, not Link.
+- Voice control via the Whisper stack ("Mr. Mic, headset!").
