@@ -37,6 +37,20 @@ def _find_path():
     return best["path"] if best else None
 
 
+def dot(level):
+    """Colored emoji for menus (native menus can't color text)."""
+    if level is None:
+        return "⚪"
+    return "🟢" if level > 50 else "🟡" if level > 20 else "🔴"
+
+
+def color(level, theme):
+    """Theme color for our own windows."""
+    if level is None:
+        return theme.DIM
+    return theme.GREEN if level > 50 else theme.AMBER if level > 20 else theme.RED
+
+
 def read_battery():
     """Battery percent 0-100, or None (dongle absent / headset off / error)."""
     path = _find_path()

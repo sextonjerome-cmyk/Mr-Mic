@@ -18,6 +18,7 @@ from pycaw.pycaw import IAudioEndpointVolume, IAudioSessionManager2, ISimpleAudi
 
 import appicons
 import audio
+import battery as battery_mod
 import theme
 
 log = logging.getLogger("mrmic")
@@ -210,12 +211,14 @@ class Mixer:
         header = tk.Frame(self.frame, bg=theme.PANEL)
         header.pack(fill="x", pady=(8, 0), padx=8)
         title = prefix + self.alias(dev["name"]) + ("  ●" if is_default else "")
+        tk.Label(header, text=title, bg=theme.PANEL, fg=theme.TEXT,
+                 font=("Segoe UI Semibold", 10)).pack(side="left", padx=6, pady=3)
         if "hyperx" in dev["name"].lower():
             level = self.battery()
             if level is not None:
-                title += f"   🔋 {level}%"
-        tk.Label(header, text=title, bg=theme.PANEL, fg=theme.TEXT,
-                 font=("Segoe UI Semibold", 10)).pack(side="left", padx=6, pady=3)
+                tk.Label(header, text=f"🔋 {level}%", bg=theme.PANEL,
+                         fg=battery_mod.color(level, theme),
+                         font=("Segoe UI Semibold", 10)).pack(side="left", pady=3)
 
         mute_btn = tk.Label(header, text="🔇" if epv.GetMute() else "🔊",
                             bg=theme.PANEL, fg=theme.TEXT if epv.GetMute() else theme.DIM,

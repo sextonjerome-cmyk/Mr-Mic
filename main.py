@@ -133,8 +133,8 @@ class MrMic:
 
     def battery_text(self, item=None):
         if self.battery is None:
-            return "🔋 Battery: — (headset off?)"
-        return f"🔋 Battery: {self.battery}%"
+            return f"{battery.dot(None)} Battery: — (headset off?)"
+        return f"{battery.dot(self.battery)} Battery: {self.battery}%"
 
     # -- tray --------------------------------------------------------------
 
