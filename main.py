@@ -133,8 +133,8 @@ class MrMic:
 
     def battery_text(self, item=None):
         if self.battery is None:
-            return "Battery: — (headset off?)"
-        return f"Battery: {self.battery}%"
+            return "🔋 Battery: — (headset off?)"
+        return f"🔋 Battery: {self.battery}%"
 
     # -- tray --------------------------------------------------------------
 
@@ -169,11 +169,11 @@ class MrMic:
 
     def _menu(self):
         return Menu(
+            Item(self.battery_text, None, enabled=False),
             Item("Toggle  🎧 ⇄ 🔊", self.toggle, default=True),
             Menu.SEPARATOR,
             Item("🎧 Headset", lambda: self.set_profile("headset")),
             Item("🔊 Laptop", lambda: self.set_profile("laptop")),
-            Item(self.battery_text, None, enabled=False),
             Item("Mixer (middle-click)", lambda: self.mixer.show()),
             Item("Output device", self._device_menu(audio.RENDER)),
             Item("Input device", self._device_menu(audio.CAPTURE)),
@@ -261,7 +261,7 @@ class MrMic:
         self.icon = pystray.Icon(
             "mrmic", tray.icon_for(self.current_profile()), "Mr. Mic", self._menu()
         )
-        self.mixer = mixer.Mixer(self.alias)
+        self.mixer = mixer.Mixer(self.alias, battery=lambda: self.battery)
         try:
             self._hook_middle_click()
         except Exception:

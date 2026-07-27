@@ -69,8 +69,9 @@ class Slider(tk.Canvas):
 
 
 class Mixer:
-    def __init__(self, alias):
+    def __init__(self, alias, battery=lambda: None):
         self.alias = alias
+        self.battery = battery
         self._q = queue.SimpleQueue()
         self._refs = []  # keep COM pointers + PhotoImages alive while open
         self._icon_cache = {}  # exe path -> PIL image
@@ -209,6 +210,10 @@ class Mixer:
         header = tk.Frame(self.frame, bg=theme.PANEL)
         header.pack(fill="x", pady=(8, 0), padx=8)
         title = prefix + self.alias(dev["name"]) + ("  ●" if is_default else "")
+        if "hyperx" in dev["name"].lower():
+            level = self.battery()
+            if level is not None:
+                title += f"   🔋 {level}%"
         tk.Label(header, text=title, bg=theme.PANEL, fg=theme.TEXT,
                  font=("Segoe UI Semibold", 10)).pack(side="left", padx=6, pady=3)
 
