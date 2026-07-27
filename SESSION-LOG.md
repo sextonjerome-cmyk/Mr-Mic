@@ -31,3 +31,23 @@ cache. Harmless, but delete `build/` if a future rebuild misbehaves.
 
 **Added the installer to the Planned list in `CLAUDE.md`** — Jerome wants a real
 Windows installer rather than distributing a zip. See that section for the requirements.
+
+**Corrected the CobbAttack framing (same day, later).** The notes used to call CobbAttack
+a "sibling project," which made two unrelated apps look paired. They are not related:
+Mr. Mic switches headset audio (closest comparison is EarTrumpet), CobbAttack is voice
+recognition for DCS. The only thing ever shared was the ten hex values in `theme.py`,
+hand-copied from CobbAttack's `ui.py` when this app was started — verified byte-for-byte
+identical, but a one-time copy, not a dependency.
+
+What changed: the "Sibling project" section became "Standalone — where the look came
+from"; `ui-theme.md` now treats the palette as self-contained and demotes CobbAttack's
+`RoundButton`/`RoundBox` to an optional code sample; `theme.py`'s docstring no longer
+names another project. Also fixed three dead folder paths left over from renames —
+`../Viacom project/` → `../CobbAttack/` and, in CobbAttack, `../Whisper/` → `../Parlez/`.
+
+Only doc/comment text changed. Verified `theme.py`, `tray.py`, and `config.py` still
+import and `BG` is still `#14181d`.
+
+**A top-level `CLAUDE.md` now exists** at `Project Claude/` — a switchboard describing all
+ten projects, the confusable pairs, and which ones are backed up. It is not in a git repo
+(the parent folder isn't one); it relies on OneDrive.
