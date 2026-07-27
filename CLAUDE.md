@@ -38,7 +38,8 @@ Devices are matched by saved endpoint ID first, name substring as fallback.
 
 ## Sibling project
 
-CobbAttack (`../Viacom project/`) is the styling and conventions reference — same theme
+CobbAttack (`../CobbAttack/`, formerly the `Viacom project/` folder) is the styling and
+conventions reference — same theme
 constants, settings.json pattern, PyInstaller packaging. Copy patterns, not dependencies.
 
 ## Packaging

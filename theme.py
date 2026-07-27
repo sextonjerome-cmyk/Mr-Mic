@@ -1,4 +1,4 @@
-"""Mr. Mic theme — same palette as CobbAttack (../Viacom project/ui.py)."""
+"""Mr. Mic theme — same palette as CobbAttack (../CobbAttack/ui.py)."""
 
 BG = "#14181d"
 PANEL = "#1c2229"
