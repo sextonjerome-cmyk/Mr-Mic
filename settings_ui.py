@@ -9,6 +9,7 @@ import logging
 import tkinter as tk
 
 import audio
+import chime
 import config
 import hotkeys
 import theme
@@ -29,6 +30,11 @@ KIND_LABELS = {
     "speaker": "🔊  Speakers",
 }
 LEAVE_ALONE = "— leave alone —"
+DOUBLE_CLICK_LABELS = {
+    "mute_mic": "🎤  Mute the microphone",
+    "mute_speakers": "🔇  Mute the speakers",
+    "off": "Off — single click switches instantly",
+}
 
 # Tk keysym -> the name the `keyboard` library uses
 MODIFIER_KEYS = {
@@ -194,6 +200,14 @@ class HotkeyField:
 
     def _text(self):
         return self.value if self.value else "— not set —"
+
+    def clear(self):
+        """Back to no hotkey at all. There has to be a visible way to do this —
+        a key combo you have to know about isn't one."""
+        self.stop()
+        self.value = ""
+        self.widget.config(text=self._text(), fg=theme.TEXT,
+                           highlightbackground=theme.BORDER)
 
     def start(self):
         if self.recording:
@@ -450,9 +464,26 @@ class SettingsWindow:
             label(row, title, width=18, anchor="w").pack(side="left")
             field = HotkeyField(row, cfg.get(key, ""), self._capture)
             field.widget.pack(side="left")
+            button(row, "✕  clear", field.clear, bg=theme.BG, fg=theme.RED,
+                   font=SMALL).pack(side="left", padx=(4, 0))
             self.hotkey_fields[key] = field
-        label(box, "Click a box and press the keys. Backspace clears it.",
+        label(box, "Click a box and press the keys you want. "
+                   "“✕ clear” sets it back to no hotkey.",
               fg=theme.DIM, font=SMALL).pack(anchor="w", pady=(4, 0))
+
+        # tray double-click
+        box = section(body, "Double-click the tray icon")
+        self.dbl = tk.StringVar(
+            value=DOUBLE_CLICK_LABELS.get(cfg.get("tray_double_click", "mute_mic"),
+                                          DOUBLE_CLICK_LABELS["mute_mic"]))
+        dropdown(box, self.dbl, list(DOUBLE_CLICK_LABELS.values()),
+                 width=30).pack(anchor="w")
+        label(box, "A quick mute for when someone starts talking to you.\n"
+                   "Costs a single click about half a second: Windows can't tell "
+                   "a single\nclick from the first half of a double one until "
+                   "that long has passed.\nSet it to Off and switching by click "
+                   "is instant again.",
+              fg=theme.DIM, font=SMALL, justify="left").pack(anchor="w", pady=(4, 0))
 
         # devices
         box = section(body, "Devices")
@@ -472,6 +503,16 @@ class SettingsWindow:
         check(box, "Switch automatically when a device turns on or is plugged in",
               self.autodetect).pack(anchor="w")
         check(box, "Play a chime when switching", self.chime).pack(anchor="w")
+        row = tk.Frame(box, bg=theme.BG)
+        row.pack(fill="x", padx=(22, 0), pady=(2, 0))
+        styles = {key: spec["label"] for key, spec in chime.STYLES.items()}
+        self.chime_style_labels = styles
+        self.chime_style = tk.StringVar(
+            value=styles.get(cfg.get("chime_style", chime.DEFAULT_STYLE),
+                             styles[chime.DEFAULT_STYLE]))
+        dropdown(row, self.chime_style, list(styles.values()),
+                 width=28).pack(side="left")
+        button(row, "▶  Test", self._test_chime).pack(side="left", padx=(6, 0))
         check(box, "Show a notification when switching",
               self.notifications).pack(anchor="w")
         row = tk.Frame(box, bg=theme.BG)
@@ -544,6 +585,16 @@ class SettingsWindow:
         else:
             self.app.bind_hotkeys()
 
+    def _chime_style_key(self):
+        return next((k for k, v in self.chime_style_labels.items()
+                     if v == self.chime_style.get()), chime.DEFAULT_STYLE)
+
+    def _test_chime(self):
+        """Rising then falling, so you hear both halves of the pair."""
+        style = self._chime_style_key()
+        chime.preview(style, rising=True)
+        self.win.after(900, lambda: chime.preview(style, rising=False))
+
     def _move(self, index, delta):
         target = index + delta
         if 0 <= target < len(self.devices):
@@ -577,8 +628,12 @@ class SettingsWindow:
             field.stop()
             cfg[key] = field.value
         cfg["devices"] = self.devices
+        cfg["tray_double_click"] = next(
+            (k for k, v in DOUBLE_CLICK_LABELS.items() if v == self.dbl.get()),
+            "mute_mic")
         cfg["autodetect"] = bool(self.autodetect.get())
         cfg["chime"] = bool(self.chime.get())
+        cfg["chime_style"] = self._chime_style_key()
         cfg["notifications"] = bool(self.notifications.get())
         try:
             cfg["battery_warn"] = max(0, min(100, int(self.battery_warn.get())))

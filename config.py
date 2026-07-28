@@ -49,8 +49,14 @@ DEFAULTS = {
     "mute_hotkey": "",
     "mic_mute_hotkey": "",
     "_hotkey_examples": "ctrl+alt+h | pause | v+c (two keys pressed together) | shift+ctrl+p",
+    # What a double-click on the tray icon does: "mute_mic", "mute_speakers",
+    # or "off". Anything other than "off" costs the single click a short delay,
+    # because Windows can't say a click was single until the double-click
+    # interval has passed.
+    "tray_double_click": "mute_mic",
     "notifications": False,
     "chime": True,
+    "chime_style": "beep",  # see chime.STYLES
     "autodetect": True,
     "poll_seconds": 2,
     "battery_warn": 20,

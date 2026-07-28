@@ -46,6 +46,19 @@ def _com_init():
     _tls.done = True
 
 
+def com_release_thread():
+    """Undo _com_init() before a short-lived thread exits. Long-running threads
+    never need this; a thread spawned per click does, or every click leaves an
+    apartment behind."""
+    if not getattr(_tls, "done", False):
+        return
+    try:
+        comtypes.CoUninitialize()
+    except OSError:
+        pass
+    _tls.done = False
+
+
 def _enumerator():
     _com_init()
     return comtypes.CoCreateInstance(

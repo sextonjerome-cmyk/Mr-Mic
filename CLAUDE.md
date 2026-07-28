@@ -51,6 +51,15 @@ off, so a battery reply is the only on/off signal there is.
 Old `settings.json` files with the two-entry `profiles` dict migrate automatically in
 `config.load()` and keep their saved endpoint ids.
 
+## Tray clicks
+
+`_hook_clicks()` takes over the tray's Win32 messages: left = switch, double-left = mute
+(configurable, `tray_double_click`), middle = mixer, right = the menu. Windows sends a
+double click as UP, DBLCLK, UP — so the first click's action fires before anyone knows a
+double was coming, and the trailing UP would fire it again. Hence the single click is held
+for `GetDoubleClickTime()` and the UP after a DBLCLK is ignored. That delay is the price
+of the feature; `tray_double_click: "off"` removes both.
+
 ## File map
 
 - `main.py` — wiring: MrMic class, tray menu, device watch thread, dark-menu opt-in
@@ -59,7 +68,7 @@ Old `settings.json` files with the two-entry `profiles` dict migrate automatical
 - `ui.py` — the one Tk thread; mixer and settings are Toplevels on it
 - `settings_ui.py` — settings window: hotkey capture, add/edit/reorder/disable devices
 - `mixer.py` — middle-click flyout: per-device master + per-app volume sliders
-- `chime.py` — generated switch sounds (rising = worn, falling = plain speakers)
+- `chime.py` — synthesised switch sounds, six styles (rising = worn, falling = speakers)
 - `hotkeys.py` — named global hotkeys; `config.py` — defaults over `settings.json`
 - `tray.py` — PIL icons per device kind; `theme.py` — palette
 - `tools/probe_devices.py` — list endpoints / `--watch` for state changes

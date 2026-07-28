@@ -54,6 +54,7 @@
     <tr><td><b>Connect Bluetooth</b> headphones</td><td>Same — they take over when they connect</td></tr>
     <tr><td><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>H</kbd></td><td>Step to the next connected device</td></tr>
     <tr><td><b>Left-click</b> tray icon</td><td>Same as the hotkey</td></tr>
+    <tr><td><b>Double-click</b> tray icon</td><td><b>Mutes your microphone</b> — the panic button</td></tr>
     <tr><td><b>Middle-click</b> (mouse wheel) tray icon</td><td>Opens the mixer</td></tr>
     <tr><td><b>Right-click</b> tray icon</td><td>Menu: devices, mute, battery, settings, exit</td></tr>
   </table>
@@ -67,13 +68,23 @@
 
   <h2>Muting</h2>
   <ul>
+    <li><b>Double-click the tray icon</b> to mute your microphone, and again to unmute.
+      For when someone walks in and starts talking.</li>
     <li>Right-click → <b>🔇 Mute speakers</b> or <b>🎤 Mute microphone</b>. These mute the
       device itself, so every app is silenced at once — a real hardware-style mute, not a
       per-app one.</li>
-    <li>Give either one a hotkey in Settings (a push-to-mute key for Discord, say).</li>
+    <li>Give either one a hotkey in Settings. Worth doing: in a full-screen game the tray
+      isn't reachable, and a key under your hand beats hunting for a 16-pixel icon.</li>
     <li>The tray icon turns <span class="r">red</span> while your speakers are muted.</li>
     <li>For one app only, use the mixer instead — click the app's icon.</li>
   </ul>
+  <div class="card">
+    <b>Why single-click feels a beat slower now.</b> Windows can't tell a single click from
+    the first half of a double click until its double-click time (half a second) has passed,
+    so switching by click waits that long to be sure. If you'd rather have instant clicks
+    than a double-click mute, set <b>Double-click the tray icon</b> to <b>Off</b> in
+    Settings — the right-click menu and the hotkey still mute.
+  </div>
 
   <h2>Tray icon colors</h2>
   <table>
@@ -97,9 +108,9 @@
   <p>Everything is in one window. No text editor, no Visual Studio.</p>
 
   <h3>Hotkeys</h3>
-  <p>Click a box, <b>press the keys you want</b>, and it's set. <kbd>Backspace</kbd>
-     clears one. Three of them: switch device, mute speakers, mute microphone.
-     Anything works — <code>ctrl+alt+h</code>, a single <code>pause</code> key,
+  <p>Click a box, <b>press the keys you want</b>, and it's set. <b>✕ clear</b> next to it
+     puts it back to no hotkey at all. Three of them: switch device, mute speakers, mute
+     microphone. Anything works — <code>ctrl+alt+h</code>, a single <code>pause</code> key,
      <code>v+c</code> (two keys held together), <code>shift+ctrl+p</code>.</p>
 
   <h3>Devices</h3>
@@ -127,7 +138,9 @@
   <h3>Options</h3>
   <table>
     <tr><td>Switch automatically</td><td>Follow devices turning on and being plugged in</td></tr>
-    <tr><td>Play a chime</td><td>Rising = something you wear, falling = plain speakers</td></tr>
+    <tr><td>Play a chime</td><td>Rising = something you wear, falling = plain speakers.
+      Six styles — <b>Beep</b> (the original), <b>Soft</b>, <b>Marimba</b>, <b>Bell</b>,
+      <b>Blip</b>, <b>Arcade</b>. Hit <b>▶ Test</b> to hear one before you keep it</td></tr>
     <tr><td>Show a notification</td><td>Windows toast on every switch (off by default)</td></tr>
     <tr><td>Battery warning %</td><td>Low-battery warning level (default 20)</td></tr>
   </table>

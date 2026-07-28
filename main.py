@@ -9,6 +9,7 @@ import os
 import subprocess
 import sys
 import threading
+import time
 
 import pystray
 from pystray import Menu, MenuItem as Item
@@ -35,6 +36,19 @@ SHORTCUT = os.path.join(STARTUP_DIR, "Mr Mic.lnk")
 PENDING_TRIES = 6
 
 
+def _double_click_seconds():
+    """Windows' own double-click interval — how long a single tray click has to
+    be held back to know it wasn't the first half of a double click."""
+    try:
+        import ctypes
+        return min(max(ctypes.windll.user32.GetDoubleClickTime(), 200), 600) / 1000
+    except Exception:
+        return 0.5
+
+
+DOUBLE_CLICK_S = _double_click_seconds()
+
+
 class MrMic:
     def __init__(self):
         self.cfg = config.load()
@@ -50,6 +64,8 @@ class MrMic:
         self._pending_missing = []
         self._pending_tries = 0
         self._muted = False     # last known output mute, for the tray icon
+        self._click_timer = None
+        self._dblclick_at = 0.0
         self.mixer = None
         self.settings = None
 
@@ -112,7 +128,8 @@ class MrMic:
         self._refresh_icon()
         if self.cfg.get("chime"):
             try:
-                chime.play(device.get("icon", "speaker"))
+                chime.play(device.get("icon", "speaker"),
+                           self.cfg.get("chime_style", chime.DEFAULT_STYLE))
             except Exception:
                 log.exception("chime failed")
         # Half a device is normal for a second or two: Windows brings a jack's
@@ -472,24 +489,70 @@ class MrMic:
 
     def quit(self, *_):
         self._stop.set()
+        if self._click_timer is not None:
+            self._click_timer.cancel()
         hotkeys.unbind_all()
         self.icon.stop()
 
     # -- lifecycle ---------------------------------------------------------
 
-    def _hook_middle_click(self):
-        """pystray only maps left/right clicks; route middle-click to the mixer."""
+    def _hook_clicks(self):
+        """pystray only maps a plain left and right click. Take the tray
+        messages over so middle-click can open the mixer and double-click can
+        mute.
+
+        Windows sends a double click as UP, DBLCLK, UP — so the first click's
+        action always fires before anyone knows a double click was coming, and
+        the trailing UP would fire it a second time. Hence: hold the single
+        click for the double-click interval, and ignore the UP that trails a
+        DBLCLK."""
         from pystray._util import win32 as pw32
-        WM_MBUTTONUP = 0x0208
+        WM_LBUTTONUP, WM_LBUTTONDBLCLK, WM_MBUTTONUP = 0x0202, 0x0203, 0x0208
         original = self.icon._on_notify
 
         def on_notify(wparam, lparam):
             if lparam == WM_MBUTTONUP:
                 self.mixer.show()
+            elif lparam == WM_LBUTTONUP:
+                self._left_click()
+            elif lparam == WM_LBUTTONDBLCLK:
+                self._left_double_click()
             else:
                 original(wparam, lparam)
 
         self.icon._message_handlers[pw32.WM_NOTIFY] = on_notify
+
+    def _double_click_action(self):
+        action = self.cfg.get("tray_double_click", "mute_mic")
+        return action if action in ("mute_mic", "mute_speakers") else None
+
+    def _left_click(self):
+        if time.monotonic() - self._dblclick_at < 0.4:
+            return  # the trailing button-up of a double click
+        if self._double_click_action() is None:
+            self.cycle()  # nothing to wait for — switch immediately
+            return
+        if self._click_timer is not None:
+            self._click_timer.cancel()
+        self._click_timer = threading.Timer(DOUBLE_CLICK_S, self._delayed_cycle)
+        self._click_timer.daemon = True
+        self._click_timer.start()
+
+    def _delayed_cycle(self):
+        try:
+            self.cycle()
+        finally:
+            audio.com_release_thread()  # this thread is about to die
+
+    def _left_double_click(self):
+        self._dblclick_at = time.monotonic()
+        if self._click_timer is not None:
+            self._click_timer.cancel()
+            self._click_timer = None
+        if self._double_click_action() == "mute_speakers":
+            self.toggle_output_mute()
+        else:
+            self.toggle_mic_mute()
 
     def run(self):
         current = self.active_device()
@@ -501,9 +564,9 @@ class MrMic:
         self.mixer = mixer.Mixer(self.alias, battery=lambda: self.battery)
         self.settings = settings_ui.SettingsWindow(self)
         try:
-            self._hook_middle_click()
+            self._hook_clicks()
         except Exception:
-            log.exception("middle-click hook failed — use the menu's Mixer item")
+            log.exception("tray click hook failed — use the menu instead")
         self.bind_hotkeys()
         threading.Thread(target=self.watch_loop, daemon=True).start()
         self._refresh_icon_soon()
