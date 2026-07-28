@@ -17,6 +17,7 @@
   .sub { color: var(--dim); margin-top: 0; }
   h2 { color: var(--blue); font-size: 18px; border-bottom: 1px solid var(--border);
        padding-bottom: 6px; margin-top: 34px; }
+  h3 { color: var(--green); font-size: 15px; margin: 22px 0 4px; }
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
           padding: 14px 18px; margin: 14px 0; }
   kbd { background: var(--field); border: 1px solid var(--border); border-radius: 5px;
@@ -33,29 +34,53 @@
 </head>
 <body>
   <h1>🎧 Mr. Mic</h1>
-  <p class="sub">One key — or just the headset power button — switches everything.</p>
+  <p class="sub">Turn a headset on, plug earphones in — Windows just follows.</p>
 
   <div class="card">
     <b>What it does:</b> switches the Windows default <b>speaker AND microphone</b> together
-    between your HyperX Cloud II Core Wireless and the laptop speakers + mic — including the
-    communications device Discord uses. Shows headset battery. Has a built-in per-app mixer.
+    between as many devices as you like — HyperX headset, wired earphones, Bluetooth
+    headphones, laptop speakers — including the communications device Discord uses.
+    Shows headset battery. Mutes your speakers or mic from the tray. Has a built-in
+    per-app mixer.
   </div>
 
   <h2>Everyday use</h2>
   <table>
     <tr><th>Action</th><th>What happens</th></tr>
-    <tr><td>Turn headset <b>on</b></td><td>Everything switches to HyperX (~2 s) — rising chime</td></tr>
-    <tr><td>Turn headset <b>off</b></td><td>Everything switches to laptop (~4 s) — falling chime</td></tr>
-    <tr><td><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>H</kbd></td><td>Manual toggle, anytime</td></tr>
-    <tr><td><b>Left-click</b> tray icon</td><td>Manual toggle</td></tr>
+    <tr><td><b>Plug earphones in</b></td><td>Everything switches to them (~2 s) — rising chime</td></tr>
+    <tr><td><b>Unplug them</b></td><td>Falls back to the next device that's on</td></tr>
+    <tr><td>Turn the <b>HyperX on</b></td><td>Everything switches to it (~2 s)</td></tr>
+    <tr><td>Turn the <b>HyperX off</b></td><td>Falls back (~4 s) — falling chime</td></tr>
+    <tr><td><b>Connect Bluetooth</b> headphones</td><td>Same — they take over when they connect</td></tr>
+    <tr><td><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>H</kbd></td><td>Step to the next connected device</td></tr>
+    <tr><td><b>Left-click</b> tray icon</td><td>Same as the hotkey</td></tr>
     <tr><td><b>Middle-click</b> (mouse wheel) tray icon</td><td>Opens the mixer</td></tr>
-    <tr><td><b>Right-click</b> tray icon</td><td>Menu: devices, battery, settings, exit</td></tr>
+    <tr><td><b>Right-click</b> tray icon</td><td>Menu: devices, mute, battery, settings, exit</td></tr>
   </table>
+
+  <div class="card">
+    <b>Whatever you just turned on wins.</b> Plug in earphones while the headset is on and
+    you get the earphones — switching something on is treated as you asking for it. The
+    list order in Settings only decides where to land when the thing you were using
+    <i>disappears</i>.
+  </div>
+
+  <h2>Muting</h2>
+  <ul>
+    <li>Right-click → <b>🔇 Mute speakers</b> or <b>🎤 Mute microphone</b>. These mute the
+      device itself, so every app is silenced at once — a real hardware-style mute, not a
+      per-app one.</li>
+    <li>Give either one a hotkey in Settings (a push-to-mute key for Discord, say).</li>
+    <li>The tray icon turns <span class="r">red</span> while your speakers are muted.</li>
+    <li>For one app only, use the mixer instead — click the app's icon.</li>
+  </ul>
 
   <h2>Tray icon colors</h2>
   <table>
-    <tr><td><span class="g">●</span> Green headset</td><td>You're on the HyperX</td></tr>
+    <tr><td><span class="g">●</span> Green headset</td><td>You're on a headset (HyperX)</td></tr>
+    <tr><td><span class="b">●</span> Blue earbuds / headphones</td><td>You're on earphones or Bluetooth</td></tr>
     <tr><td><span class="a">●</span> Orange speaker</td><td>You're on laptop speakers + mic</td></tr>
+    <tr><td><span class="r">●</span> Red</td><td>Your speakers are muted</td></tr>
     <tr><td><span class="d">●</span> Gray speaker</td><td>Some other device is default (e.g. ButtKicker)</td></tr>
   </table>
   <p>Hover the icon to see current devices and <b>battery %</b>. Low-battery warning pops at 20%.</p>
@@ -68,29 +93,52 @@
     <li>The <b>●</b> marks the current default device. <kbd>Esc</kbd> or click away to close.</li>
   </ul>
 
-  <h2>Changing the hotkey</h2>
-  <p>Right-click → <b>Edit settings</b> → change <code>"hotkey"</code> → right-click → <b>Reload settings</b>. Examples:</p>
-  <table>
-    <tr><td><code>ctrl+alt+h</code></td><td>modifier combo (default)</td></tr>
-    <tr><td><code>pause</code></td><td>one single key</td></tr>
-    <tr><td><code>v+c</code></td><td>two keys pressed together</td></tr>
-    <tr><td><code>shift+ctrl+p</code></td><td>any modifier mix</td></tr>
-  </table>
+  <h2>Settings — right-click → ⚙ Settings…</h2>
+  <p>Everything is in one window. No text editor, no Visual Studio.</p>
 
-  <h2>Settings quick reference (settings.json)</h2>
+  <h3>Hotkeys</h3>
+  <p>Click a box, <b>press the keys you want</b>, and it's set. <kbd>Backspace</kbd>
+     clears one. Three of them: switch device, mute speakers, mute microphone.
+     Anything works — <code>ctrl+alt+h</code>, a single <code>pause</code> key,
+     <code>v+c</code> (two keys held together), <code>shift+ctrl+p</code>.</p>
+
+  <h3>Devices</h3>
   <table>
-    <tr><td><code>chime</code></td><td>switch sounds on/off</td></tr>
-    <tr><td><code>notifications</code></td><td>Windows toast on switch (off by default)</td></tr>
-    <tr><td><code>autodetect</code></td><td>follow the headset power button</td></tr>
-    <tr><td><code>battery_warn</code></td><td>low-battery warning level (default 20)</td></tr>
-    <tr><td><code>aliases</code></td><td>short display names for devices</td></tr>
+    <tr><td><b>+ Add device</b></td><td>Name it, pick its speakers and mic from the list, done</td></tr>
+    <tr><td><b>Edit</b></td><td>Change any of that later</td></tr>
+    <tr><td><b>Tick box</b></td><td>Untick to <b>disable</b> a device — hidden and ignored, but not deleted</td></tr>
+    <tr><td><b>▲ ▼</b></td><td>Order = priority. Top of the list wins when two are on at once</td></tr>
+    <tr><td><b>✕</b></td><td>Remove it for good</td></tr>
+  </table>
+  <div class="card">
+    <b>Setting up a device that isn't here right now</b> — a Bluetooth headset you left at
+    home, say. The dropdown lists everything Windows has <i>ever</i> seen, marked
+    <span class="d">NotPresent</span>. Pair it once, then pick it from that list any time
+    afterwards and it'll be ready when you next turn it on.
+  </div>
+  <div class="card">
+    <b>Bluetooth headphones: leave the microphone on “— leave alone —”.</b> Bluetooth has two
+    modes: <b>Headphones (…)</b> is proper stereo, <b>Headset (…)</b> turns the mic on but
+    drops the sound to tinny phone-call quality. Mr. Mic points at the good one and leaves
+    your mic where it was. Only pick the <b>Headset (…)</b> mic if you actually want to talk
+    through those headphones, and expect the music to sound bad while you do.
+  </div>
+
+  <h3>Options</h3>
+  <table>
+    <tr><td>Switch automatically</td><td>Follow devices turning on and being plugged in</td></tr>
+    <tr><td>Play a chime</td><td>Rising = something you wear, falling = plain speakers</td></tr>
+    <tr><td>Show a notification</td><td>Windows toast on every switch (off by default)</td></tr>
+    <tr><td>Battery warning %</td><td>Low-battery warning level (default 20)</td></tr>
   </table>
 
   <h2>Tips &amp; troubleshooting</h2>
   <ul>
     <li><b>Discord:</b> set its input/output to <b>Default</b> in Voice settings once — then it always follows Mr. Mic.</li>
-    <li><b>Parlez/dictation going crazy on switch?</b> Pin it to the HyperX mic in its own settings, or lower the laptop mic in the mixer.</li>
-    <li><b>Battery shows “—”:</b> headset is off (that's also how auto-detect knows).</li>
+    <li><b>A device shows “(off)” and is greyed out:</b> Windows can't see it. Turn it on, plug it in, or connect it in Bluetooth settings.</li>
+    <li><b>Something switched and you didn't want it to:</b> untick <b>auto</b> for that device in Settings (Edit → uncheck "switch to it automatically"). It stays in the menu for switching by hand.</li>
+    <li><b>Dictation going crazy on switch?</b> Pin it to a specific mic in its own settings, or lower that mic in the mixer.</li>
+    <li><b>Battery shows “—”:</b> the HyperX is off (that's also how Mr. Mic knows).</li>
     <li><b>App not running?</b> Double-click <code>MrMic.exe</code> (or <code>run-mrmic.bat</code>). It also autostarts with Windows. A second copy won't start twice — that's intentional.</li>
     <li><b>Gaming:</b> Mr. Mic runs at below-normal priority, ~0.05% CPU, no GPU — it cannot affect DCS/VR performance.</li>
     <li><b>Logs:</b> <code>mrmic.log</code> next to the app records every switch.</li>

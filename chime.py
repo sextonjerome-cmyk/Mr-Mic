@@ -1,7 +1,8 @@
 """Switch chimes for Mr. Mic — tiny generated WAVs, played async.
 
-Headset = two rising notes, laptop = two falling notes, so you can tell
-which way it switched without looking. Generated once into assets/.
+Switching TO something you wear (headset, earphones, Bluetooth) plays two
+rising notes; falling back to plain speakers plays two falling notes, so you
+can tell which way it went without looking. Generated once into assets/.
 """
 
 import math
@@ -48,8 +49,8 @@ def ensure():
     return {"headset": up, "laptop": down}
 
 
-def play(profile):
+def play(kind):
+    """kind is a device icon kind: "speaker" falls, everything worn rises."""
     paths = ensure()
-    path = paths.get(profile)
-    if path:
-        winsound.PlaySound(path, winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_NODEFAULT)
+    path = paths["laptop"] if kind == "speaker" else paths["headset"]
+    winsound.PlaySound(path, winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_NODEFAULT)

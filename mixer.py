@@ -1,25 +1,23 @@
 """Mr. Mic mixer flyout — EarTrumpet-style per-device / per-app volumes.
 
-Middle-click the tray icon to open. Runs a tkinter loop on its own thread;
-all Tk *and* COM calls for the mixer happen on that thread.
+Middle-click the tray icon to open. It is a Toplevel on the shared Tk thread
+in `ui.py`; all Tk *and* COM calls for the mixer happen on that thread.
 """
 
 import logging
-import queue
-import threading
 import tkinter as tk
-from ctypes import POINTER, cast
 
 import comtypes
 import psutil
 from PIL import Image, ImageDraw, ImageTk
 from pycaw.api.audiopolicy import IAudioSessionControl2
-from pycaw.pycaw import IAudioEndpointVolume, IAudioSessionManager2, ISimpleAudioVolume
+from pycaw.pycaw import IAudioSessionManager2, ISimpleAudioVolume
 
 import appicons
 import audio
 import battery as battery_mod
 import theme
+import ui
 
 log = logging.getLogger("mrmic")
 
@@ -73,19 +71,22 @@ class Mixer:
     def __init__(self, alias, battery=lambda: None):
         self.alias = alias
         self.battery = battery
-        self._q = queue.SimpleQueue()
         self._refs = []  # keep COM pointers + PhotoImages alive while open
         self._icon_cache = {}  # exe path -> PIL image
-        threading.Thread(target=self._run, daemon=True).start()
+        self.root = None
 
     def show(self):
-        self._q.put("show")
+        ui.call(self._open)
 
     # -- tk thread ---------------------------------------------------------
 
-    def _run(self):
-        audio._com_init()
-        self.root = tk.Tk()
+    def _open(self):
+        if self.root is None:
+            self._build()
+        self._show()
+
+    def _build(self):
+        self.root = tk.Toplevel(ui.root)
         self.root.withdraw()
         self.root.overrideredirect(True)
         self.root.attributes("-topmost", True)
@@ -94,17 +95,6 @@ class Mixer:
         self.frame.pack(fill="both", expand=True, padx=1, pady=1)
         self.root.bind("<Escape>", lambda e: self._hide())
         self.root.bind("<FocusOut>", self._maybe_hide)
-        self._poll()
-        self.root.mainloop()
-
-    def _poll(self):
-        try:
-            while True:
-                self._q.get_nowait()
-                self._show()
-        except queue.Empty:
-            pass
-        self.root.after(120, self._poll)
 
     def _hide(self):
         self.root.withdraw()
@@ -115,21 +105,18 @@ class Mixer:
 
     def _focus_lost(self):
         try:
-            return self.root.focus_get() is None
+            focused = self.root.focus_get()
         except (KeyError, tk.TclError):
             return False  # focus is on a widget tk can't resolve — still ours
+        if focused is None:
+            return True
+        # another Mr. Mic window (settings) counts as "not the mixer"
+        return not str(focused).startswith(str(self.root))
 
     # -- audio plumbing (tk thread only) -----------------------------------
 
-    def _endpoint_volume(self, dev_id):
-        dev = audio._enumerator().GetDevice(dev_id)
-        iface = dev.Activate(IAudioEndpointVolume._iid_, comtypes.CLSCTX_ALL, None)
-        return cast(iface, POINTER(IAudioEndpointVolume))
-
     def _sessions(self, dev_id):
-        dev = audio._enumerator().GetDevice(dev_id)
-        iface = dev.Activate(IAudioSessionManager2._iid_, comtypes.CLSCTX_ALL, None)
-        manager = cast(iface, POINTER(IAudioSessionManager2))
+        manager = audio.activate(dev_id, IAudioSessionManager2)
         enum = manager.GetSessionEnumerator()
         grouped = {}  # one slider per app — apps like DCS own several sessions
         for i in range(enum.GetCount()):
@@ -206,7 +193,7 @@ class Mixer:
 
     def _device_section(self, dev, is_default, prefix=""):
         """Header (name + mute) and master slider for one device."""
-        epv = self._endpoint_volume(dev["id"])
+        epv = audio.endpoint_volume(dev["id"])
 
         header = tk.Frame(self.frame, bg=theme.PANEL)
         header.pack(fill="x", pady=(8, 0), padx=8)

@@ -16,6 +16,19 @@
   NOT Realtek (that one is Unplugged); ButtKicker is render-only, never a default.
 - COM must be initialized per thread — call sites run on pystray/keyboard/poll
   threads. `audio._com_init()` handles it; route new COM code through `audio.py`.
+- **Never `ctypes.cast()` a COM interface pointer — use `QueryInterface`.** pycaw's own
+  README does `cast(dev.Activate(...), POINTER(IAudioEndpointVolume))`, and that is a
+  process-killer here: a cast pointer keeps its source alive in a reference *cycle*, so
+  it survives until the cyclic GC runs, and the cyclic GC runs on whatever thread happens
+  to trip it — releasing an apartment-bound pointer from the wrong thread is an access
+  violation that takes the whole app down (seen 2026-07-28, crashed ~10 s after start).
+  `audio.activate(device_id, Interface)` does it correctly; go through it.
+  To check for a regression: loop the call and count
+  `gc.get_objects()` entries that are `comtypes` `_compointer_base` instances — it must
+  stay at 0 without calling `gc.collect()`.
+- Enumerating endpoints is the expensive call. When testing several devices at once
+  (the watch loop does, every couple of seconds), call `audio.list_devices()` once and
+  pass the result to `audio.match_device()` — don't call `find_device()` per device.
 
 ## Battery over HID
 - Windows battery APIs don't work for 2.4 GHz dongles. `battery.py` writes the vendor

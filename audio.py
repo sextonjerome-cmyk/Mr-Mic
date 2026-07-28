@@ -17,7 +17,7 @@ from ctypes import POINTER, c_int, c_void_p
 from ctypes.wintypes import BOOL, DWORD, LPCWSTR
 
 from pycaw.constants import CLSID_MMDeviceEnumerator
-from pycaw.pycaw import AudioUtilities, IMMDeviceEnumerator
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume, IMMDeviceEnumerator
 
 # EDataFlow
 RENDER, CAPTURE, ALL = 0, 1, 2
@@ -134,11 +134,61 @@ def set_default(device_id, roles=ALL_ROLES):
         policy.SetDefaultEndpoint(device_id, role)
 
 
-def find_device(flow, name_match, device_id=None, active_only=True):
-    """Find an endpoint by exact id first, then case-insensitive name substring.
-    Returns the device dict or None."""
-    mask = STATE_ACTIVE if active_only else STATE_MASK_ALL
-    devices = list_devices(flow, mask)
+def activate(device_id, interface):
+    """Activate a COM interface on one endpoint.
+
+    Use QueryInterface, never ctypes.cast. pycaw's documented example casts
+    the IUnknown that Activate() hands back, but a cast pointer keeps the
+    source alive in a reference cycle: the pointer then survives until the
+    *cyclic* collector runs, which can be on any thread, and releasing an
+    apartment-bound pointer from the wrong thread crashes the process.
+    QueryInterface AddRefs properly and frees on the thread that made it.
+    """
+    _com_init()
+    dev = _enumerator().GetDevice(device_id)
+    unknown = dev.Activate(interface._iid_, comtypes.CLSCTX_ALL, None)
+    return unknown.QueryInterface(interface)
+
+
+def endpoint_volume(device_id):
+    """IAudioEndpointVolume for one endpoint — master volume and mute."""
+    return activate(device_id, IAudioEndpointVolume)
+
+
+def get_mute(flow):
+    """True/False for the current default device, or None if there isn't one."""
+    device_id, _ = get_default(flow)
+    if not device_id:
+        return None
+    try:
+        return bool(endpoint_volume(device_id).GetMute())
+    except (comtypes.COMError, OSError):
+        return None
+
+
+def set_mute(flow, muted):
+    device_id, _ = get_default(flow)
+    if not device_id:
+        return None
+    try:
+        endpoint_volume(device_id).SetMute(bool(muted), None)
+        return bool(muted)
+    except (comtypes.COMError, OSError):
+        return None
+
+
+def toggle_mute(flow):
+    """Flip mute on the current default device. Returns the new state or None."""
+    current = get_mute(flow)
+    if current is None:
+        return None
+    return set_mute(flow, not current)
+
+
+def match_device(devices, name_match, device_id=None):
+    """Pick from an already-enumerated list: exact id first, then a
+    case-insensitive name substring. Use this when you are checking several
+    devices at once — one enumeration instead of one per device."""
     if device_id:
         for dev in devices:
             if dev["id"] == device_id:
@@ -149,3 +199,10 @@ def find_device(flow, name_match, device_id=None, active_only=True):
             if needle in dev["name"].lower():
                 return dev
     return None
+
+
+def find_device(flow, name_match, device_id=None, active_only=True):
+    """Find an endpoint by exact id first, then case-insensitive name substring.
+    Returns the device dict or None."""
+    mask = STATE_ACTIVE if active_only else STATE_MASK_ALL
+    return match_device(list_devices(flow, mask), name_match, device_id)

@@ -1,11 +1,12 @@
-# Mr. Mic — one-key audio switcher for the HyperX headset
+# Mr. Mic — one-key audio switcher for whatever you're listening on
 
-A small Python tray app for Jerome's gaming laptop. One hotkey (or the headset's own
-power button, auto-detected) switches the Windows default output AND input between the
-HyperX Cloud II Core Wireless (USB dongle) and the laptop speakers + mic — including the
-Communications defaults, so Discord follows. Also reads headset battery straight from the
-dongle. Built because flipping devices by hand in Volume Mixer before every DCS/Discord
-session was misery.
+A small Python tray app for Jerome's gaming laptop. One hotkey — or just turning a device
+on / plugging it in — switches the Windows default output AND input to any of an editable
+list of devices: the HyperX Cloud II Core Wireless (USB dongle), wired earphones in the
+headphone jack, Skullcandy Hesh ANC over Bluetooth, the laptop speakers + mic. It sets the
+Communications defaults too, so Discord follows. Also reads headset battery straight from
+the dongle, and can mute the speakers or mic outright from the tray. Built because
+flipping devices by hand in Volume Mixer before every DCS/Discord session was misery.
 
 Think of it as being in the same family as **EarTrumpet** — a small Windows tray utility
 for audio, with the middle-click mixer for per-app volume. Where it goes further is the
@@ -27,20 +28,40 @@ detail. Skip the jargon unless I ask. Detail on request, or when the decision is
 
 ## Architecture (one breath)
 
-Hotkey (`keyboard`) or headset-power poll → `set_profile()` → IPolicyConfig
+Hotkey (`keyboard`) or the watch thread → `activate(device)` → IPolicyConfig
 `SetDefaultEndpoint` for render + capture, all three roles → tray icon/tooltip updates
-(`pystray` + PIL). Battery: vendor HID request to the dongle every 60 s (`hidapi`).
-Devices are matched by saved endpoint ID first, name substring as fallback.
+(`pystray` + PIL). Battery: vendor HID request to the dongle every poll (`hidapi`).
+Endpoints are matched by saved ID first, name substring as fallback.
+
+## The device list (the core idea)
+
+`settings.json` holds an ordered `devices` list, not a fixed headset/laptop pair. Each
+entry has a label, an icon kind, output/input match + id, `enabled`, `auto`, and
+`detect`. Order is priority.
+
+**Auto-switch rule:** a device that *just became available* wins, whatever its priority —
+turning something on is a deliberate act. Priority only decides where to land when the
+device in use disappears. `_auto_switch()` in `main.py` is the whole rule; the transition
+table is worth re-reading before changing it.
+
+`detect` is `"endpoint"` (is it Active in Windows?) for everything except the HyperX,
+which is `"battery"` — that dongle's endpoint stays Active whether the headset is on or
+off, so a battery reply is the only on/off signal there is.
+
+Old `settings.json` files with the two-entry `profiles` dict migrate automatically in
+`config.load()` and keep their saved endpoint ids.
 
 ## File map
 
-- `main.py` — wiring: MrMic class, tray menu, headset-watch thread, dark-menu opt-in
-- `audio.py` — enumerate endpoints, get/set Windows defaults (IPolicyConfig)
+- `main.py` — wiring: MrMic class, tray menu, device watch thread, dark-menu opt-in
+- `audio.py` — enumerate endpoints, get/set Windows defaults (IPolicyConfig), mute
 - `battery.py` — HyperX dongle battery over HID (doubles as on/off signal)
+- `ui.py` — the one Tk thread; mixer and settings are Toplevels on it
+- `settings_ui.py` — settings window: hotkey capture, add/edit/reorder/disable devices
 - `mixer.py` — middle-click flyout: per-device master + per-app volume sliders
-- `chime.py` — generated switch sounds (rising = headset, falling = laptop)
-- `hotkeys.py` — global hotkey binding; `config.py` — defaults over `settings.json`
-- `tray.py` — PIL icons (green headset / amber speaker); `theme.py` — palette
+- `chime.py` — generated switch sounds (rising = worn, falling = plain speakers)
+- `hotkeys.py` — named global hotkeys; `config.py` — defaults over `settings.json`
+- `tray.py` — PIL icons per device kind; `theme.py` — palette
 - `tools/probe_devices.py` — list endpoints / `--watch` for state changes
 - `run-mrmic.bat` — hidden launcher (pythonw)
 
@@ -65,6 +86,11 @@ User guide: `mrmic-guide.html` (linked from the tray menu).
 
 ## Planned (not built yet)
 
+- **Echo speaker** as a device: Jerome wants to send audio to an Amazon Echo. Nothing to
+  build in Mr. Mic *if* the Echo shows up as a Windows output endpoint (Bluetooth pairing
+  does this) — then it is just "+ Add device" in Settings. If he means Alexa Cast /
+  Wi-Fi streaming, Windows has no endpoint for it and something else is needed.
+  Check which one it is before writing code.
 - **Quest 3 battery** (next session): show headset battery for Jerome's Meta Quest 3 in
   the tray menu (when Quest/Virtual Desktop output is selected) and in the mixer header,
   like the HyperX one. No dongle to query — likely path is ADB (`adb shell dumpsys

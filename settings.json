@@ -1,5 +1,7 @@
 {
   "hotkey": "ctrl+alt+h",
+  "mute_hotkey": "",
+  "mic_mute_hotkey": "",
   "_hotkey_examples": "ctrl+alt+h | pause | v+c (two keys pressed together) | shift+ctrl+p",
   "notifications": false,
   "chime": true,
@@ -9,23 +11,62 @@
   "aliases": {
     "HyperX": "HyperX",
     "Speakers (Realtek": "Laptop speakers",
-    "Realtek": "Laptop",
+    "Headphones (Realtek": "Earphones",
+    "Microphone (Realtek": "Earphone mic",
     "Microphone Array": "Laptop mic",
+    "Hesh ANC": "Hesh ANC",
     "USB2.0": "ButtKicker",
-    "Virtual Desktop": "Virtual Desktop"
+    "Virtual Desktop": "Virtual Desktop",
+    "Realtek": "Laptop"
   },
-  "profiles": {
-    "headset": {
+  "devices": [
+    {
+      "key": "headset",
+      "label": "HyperX Headset",
+      "icon": "headset",
       "output_match": "HyperX",
       "output_id": "{0.0.0.00000000}.{1d962cfa-443c-4966-a61d-aaeba7816514}",
       "input_match": "HyperX",
-      "input_id": "{0.0.1.00000000}.{3304690b-d782-4768-a6f7-434054ef11c3}"
+      "input_id": "{0.0.1.00000000}.{3304690b-d782-4768-a6f7-434054ef11c3}",
+      "enabled": true,
+      "auto": true,
+      "detect": "battery"
     },
-    "laptop": {
+    {
+      "key": "earphones",
+      "label": "Earphones (jack)",
+      "icon": "earbuds",
+      "output_match": "Headphones (Realtek",
+      "output_id": "{0.0.0.00000000}.{13651f96-6537-4309-9341-1468e3a51c06}",
+      "input_match": "Microphone (Realtek",
+      "input_id": "{0.0.1.00000000}.{e2cea110-6ae4-499b-97f7-6dad39b6dc55}",
+      "enabled": true,
+      "auto": true,
+      "detect": "endpoint"
+    },
+    {
+      "key": "hesh",
+      "label": "Skullcandy Hesh ANC",
+      "icon": "bluetooth",
+      "output_match": "Headphones (Hesh ANC",
+      "output_id": null,
+      "input_match": "",
+      "input_id": null,
+      "enabled": true,
+      "auto": true,
+      "detect": "endpoint"
+    },
+    {
+      "key": "laptop",
+      "label": "Laptop speakers",
+      "icon": "speaker",
       "output_match": "Speakers (Realtek",
       "output_id": "{0.0.0.00000000}.{b99c08ac-8afd-45ba-9979-a1706e6a7750}",
       "input_match": "Microphone Array",
-      "input_id": "{0.0.1.00000000}.{3b7a97e2-c32c-4034-a86a-45b725ded57d}"
+      "input_id": "{0.0.1.00000000}.{3b7a97e2-c32c-4034-a86a-45b725ded57d}",
+      "enabled": true,
+      "auto": true,
+      "detect": "endpoint"
     }
-  }
+  ]
 }
