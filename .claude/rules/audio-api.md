@@ -43,3 +43,8 @@
   dongle never changes its Windows endpoint state on headset power (verified
   2026-07-26, 120 s watch, zero transitions), but it only answers the battery
   request while the headset is on. Two consecutive misses = off (debounce).
+- **"No battery reading" has two causes and users need them separated.** A dongle
+  that isn't in a USB port and a dongle whose headset is off both return None.
+  `battery.status()` returns `(plugged_in, level)` so the tray can say "dongle
+  unplugged" instead of "headset off?" — the wrong message cost Jerome an evening on
+  2026-07-30, hunting through the app for a bug that was an empty USB port.

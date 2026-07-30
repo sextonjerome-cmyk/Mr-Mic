@@ -29,7 +29,7 @@ else:
 SETTINGS_PATH = os.path.join(APP_DIR, "settings.json")
 LOG_PATH = os.path.join(APP_DIR, "mrmic.log")
 
-ICONS = ("headset", "earbuds", "bluetooth", "speaker")
+ICONS = ("headset", "headphones", "earbuds", "bluetooth", "speaker")
 
 DEVICE_DEFAULTS = {
     "key": "device",
@@ -87,7 +87,7 @@ DEFAULTS = {
             # Bluetooth: point output at the "Headphones (…)" endpoint (A2DP,
             # good sound) and leave the mic alone. Selecting the "Headset (…)"
             # mic flips the link to hands-free mode and the music turns to mush.
-            "key": "hesh", "label": "Skullcandy Hesh ANC", "icon": "bluetooth",
+            "key": "hesh", "label": "Skullcandy Hesh ANC", "icon": "headphones",
             "output_match": "Headphones (Hesh ANC", "output_id": None,
             "input_match": "", "input_id": None,
             "enabled": True, "auto": True, "detect": "endpoint",

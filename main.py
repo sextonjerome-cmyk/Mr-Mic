@@ -55,6 +55,7 @@ class MrMic:
         self.icon = None
         self._stop = threading.Event()
         self.battery = None
+        self.dongle = True  # optimistic; the first poll logs the truth
         self._battery_warned = False
         self._battery_misses = 0
         self._battery_on = False
@@ -241,7 +242,11 @@ class MrMic:
         """Read the HyperX dongle. The reply doubles as the headset's on/off
         signal — this dongle never changes its Windows endpoint state when the
         headset powers down. Two misses in a row = off (debounce)."""
-        level = battery.read_battery()
+        plugged, level = battery.status()
+        if plugged != self.dongle:
+            log.info("dongle %s", "plugged in" if plugged else "unplugged")
+            self.dongle = plugged
+            self._refresh_icon()
         if level is not None:
             self._battery_misses = 0
             on = True
@@ -341,6 +346,8 @@ class MrMic:
             self._stop.wait(self.cfg.get("poll_seconds", 2))
 
     def battery_text(self, item=None):
+        if not self.dongle:
+            return "🔌 Dongle unplugged — check the USB port"
         if self.battery is None:
             return f"{battery.dot(None)} Battery: — (headset off?)"
         return f"{battery.dot(self.battery)} Battery: {self.battery}%"
@@ -360,7 +367,12 @@ class MrMic:
         _, out_name = audio.get_default(audio.RENDER)
         _, in_name = audio.get_default(audio.CAPTURE)
         self.icon.icon = tray.icon_for(device["icon"] if device else None, self._muted)
-        batt = f" · 🔋 {self.battery}%" if self.battery is not None else ""
+        if self._battery_wanted() and not self.dongle:
+            batt = " · 🔌 dongle unplugged"
+        elif self.battery is not None:
+            batt = f" · 🔋 {self.battery}%"
+        else:
+            batt = ""
         mute = " · muted" if self._muted else ""
         self.icon.title = (
             f"Speaker: {self.alias(out_name)} · Mic: {self.alias(in_name)}{batt}{mute}"
@@ -392,7 +404,15 @@ class MrMic:
             current = self.active_device()
             return current is not None and current["key"] == device["key"]
 
-        suffix = "" if connected else "  (off)"
+        if connected:
+            suffix = ""
+        elif device.get("detect") == "battery" and not self.dongle:
+            # "off" would send you hunting through the app; the dongle simply
+            # isn't in a USB port, and no amount of turning the headset on
+            # will help until it is.
+            suffix = "  (dongle unplugged)"
+        else:
+            suffix = "  (off)"
         return Item(f"{device['label']}{suffix}", on_click,
                     checked=is_checked, radio=True, enabled=connected)
 

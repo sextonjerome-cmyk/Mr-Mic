@@ -13,6 +13,7 @@ SIZE = 64
 # Which color each device kind wears when it is the active one.
 KIND_COLORS = {
     "headset": theme.GREEN,
+    "headphones": theme.BLUE,
     "earbuds": theme.BLUE,
     "bluetooth": theme.BLUE,
     "speaker": theme.AMBER,
@@ -32,6 +33,17 @@ def headset_icon(color=theme.GREEN):
     d.rounded_rectangle((44, 28, 58, 52), radius=6, fill=color)
     d.line((16, 52, 26, 59), fill=color, width=5)
     d.ellipse((24, 55, 34, 64), fill=color)
+    return img
+
+
+def headphones_icon(color=theme.BLUE):
+    """Over-ear cups and a band, no mic boom — the Skullcandy. Same silhouette
+    as the headset minus the boom; the color is what tells them apart at 16 px
+    (headset is green, these are blue)."""
+    img, d = _canvas()
+    d.arc((7, 6, 57, 56), start=180, end=360, fill=color, width=8)
+    d.rounded_rectangle((4, 30, 22, 58), radius=8, fill=color)
+    d.rounded_rectangle((42, 30, 60, 58), radius=8, fill=color)
     return img
 
 
@@ -69,6 +81,7 @@ def speaker_icon(color=theme.AMBER):
 
 GLYPHS = {
     "headset": headset_icon,
+    "headphones": headphones_icon,
     "earbuds": earbuds_icon,
     "bluetooth": bluetooth_icon,
     "speaker": speaker_icon,

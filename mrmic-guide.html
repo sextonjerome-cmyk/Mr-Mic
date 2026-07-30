@@ -151,7 +151,12 @@
     <li><b>A device shows “(off)” and is greyed out:</b> Windows can't see it. Turn it on, plug it in, or connect it in Bluetooth settings.</li>
     <li><b>Something switched and you didn't want it to:</b> untick <b>auto</b> for that device in Settings (Edit → uncheck "switch to it automatically"). It stays in the menu for switching by hand.</li>
     <li><b>Dictation going crazy on switch?</b> Pin it to a specific mic in its own settings, or lower that mic in the mixer.</li>
-    <li><b>Battery shows “—”:</b> the HyperX is off (that's also how Mr. Mic knows).</li>
+    <li><b>Battery shows “—” (headset off?):</b> the HyperX is switched off. That's also
+      how Mr. Mic knows — the dongle only answers while the headset is on.</li>
+    <li><b>“🔌 Dongle unplugged”:</b> different problem. The little USB receiver isn't in a
+      port, so turning the headset on does nothing — there's nothing listening. Plug it
+      back in, or pull it out and reseat it if it's already there (a USB port that slept
+      and never woke up looks identical to an empty one).</li>
     <li><b>App not running?</b> Double-click <code>MrMic.exe</code> (or <code>run-mrmic.bat</code>). It also autostarts with Windows. A second copy won't start twice — that's intentional.</li>
     <li><b>Gaming:</b> Mr. Mic runs at below-normal priority, ~0.05% CPU, no GPU — it cannot affect DCS/VR performance.</li>
     <li><b>Logs:</b> <code>mrmic.log</code> next to the app records every switch.</li>

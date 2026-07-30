@@ -24,9 +24,10 @@ SMALL = ("Segoe UI", 8)
 HEAD = ("Segoe UI Semibold", 9)
 
 KIND_LABELS = {
-    "headset": "🎧  Headset",
+    "headset": "🎧  Headset (with mic boom)",
+    "headphones": "🎧  Headphones (over-ear)",
     "earbuds": "🎵  Earphones",
-    "bluetooth": "📶  Bluetooth",
+    "bluetooth": "📶  Bluetooth rune",
     "speaker": "🔊  Speakers",
 }
 LEAVE_ALONE = "— leave alone —"

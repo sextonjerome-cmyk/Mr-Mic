@@ -51,11 +51,7 @@ def color(level, theme):
     return theme.GREEN if level > 50 else theme.AMBER if level > 20 else theme.RED
 
 
-def read_battery():
-    """Battery percent 0-100, or None (dongle absent / headset off / error)."""
-    path = _find_path()
-    if not path:
-        return None
+def _ask(path):
     device = hid.device()
     try:
         device.open_path(path)
@@ -76,5 +72,25 @@ def read_battery():
             pass
 
 
+def status():
+    """(dongle_plugged_in, battery_percent).
+
+    Two very different silences look identical if you only return the level:
+    a dongle that isn't in a USB port at all, and a dongle sitting there with
+    the headset switched off. Telling them apart is the difference between
+    "turn your headset on" and "you've left the dongle in the other laptop"."""
+    path = _find_path()
+    if not path:
+        return False, None
+    return True, _ask(path)
+
+
+def read_battery():
+    """Battery percent 0-100, or None (dongle absent / headset off / error)."""
+    return status()[1]
+
+
 if __name__ == "__main__":
-    print(f"Battery: {read_battery()}%")
+    plugged, level = status()
+    print(f"Dongle: {'plugged in' if plugged else 'NOT on USB'}")
+    print(f"Battery: {level}%" if level is not None else "Battery: — (headset off?)")

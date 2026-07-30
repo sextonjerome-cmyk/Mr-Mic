@@ -73,6 +73,7 @@ class Mixer:
         self.battery = battery
         self._refs = []  # keep COM pointers + PhotoImages alive while open
         self._icon_cache = {}  # exe path -> PIL image
+        self._mics_open = False
         self.root = None
 
     def show(self):
@@ -229,17 +230,23 @@ class Mixer:
         master.pack(fill="x", padx=6, pady=(2, 6))
         return epv
 
-    def _show(self):
+    def _build_body(self):
+        """Fill the flyout. Only the device you are actually listening on —
+        sliders for a headset that is switched off are just noise."""
         self._refs.clear()
         for child in self.frame.winfo_children():
             child.destroy()
 
         try:
-            devices = audio.list_devices(audio.RENDER, audio.STATE_ACTIVE)
+            active = audio.list_devices(audio.RENDER, audio.STATE_ACTIVE)
         except Exception:
             log.exception("mixer: device enumeration failed")
             return
         default_id, _ = audio.get_default(audio.RENDER)
+        devices = [d for d in active if d["id"] == default_id]
+        if not devices:
+            tk.Label(self.frame, text="No default speakers", bg=theme.BG,
+                     fg=theme.DIM, font=("Segoe UI", 10)).pack(pady=12)
 
         for dev in devices:
             is_default = dev["id"] == default_id
@@ -285,25 +292,51 @@ class Mixer:
                 )
                 slider.pack(side="left", fill="x", expand=True, pady=1)
 
-        # microphones — master + mute only, no app sessions
-        default_in, _ = audio.get_default(audio.CAPTURE)
-        for dev in audio.list_devices(audio.CAPTURE, audio.STATE_ACTIVE):
-            try:
-                epv = self._device_section(dev, dev["id"] == default_in, prefix="🎤 ")
-            except comtypes.COMError:
-                continue
-            self._refs.append((epv,))
+        # Microphones — folded away by default. Input levels are a set-once
+        # thing; having four of them open every time buries the sliders you
+        # actually came for.
+        default_in, in_name = audio.get_default(audio.CAPTURE)
+        header = tk.Frame(self.frame, bg=theme.BG, cursor="hand2")
+        header.pack(fill="x", padx=8, pady=(10, 0))
+        chevron = "▾" if self._mics_open else "▸"
+        summary = "" if self._mics_open else f"   ({self.alias(in_name)})"
+        title = tk.Label(header, text=f"{chevron}  🎤 Microphones{summary}",
+                         bg=theme.BG, fg=theme.DIM, font=("Segoe UI", 9),
+                         cursor="hand2")
+        title.pack(side="left", padx=6, pady=2)
+        for widget in (header, title):
+            widget.bind("<Button-1>", lambda _e: self._toggle_mics())
+
+        if self._mics_open:
+            for dev in audio.list_devices(audio.CAPTURE, audio.STATE_ACTIVE):
+                try:
+                    epv = self._device_section(dev, dev["id"] == default_in,
+                                               prefix="🎤 ")
+                except comtypes.COMError:
+                    continue
+                self._refs.append((epv,))
 
         tk.Frame(self.frame, bg=theme.BG, height=8).pack()
 
+    def _size(self):
         self.root.update_idletasks()
-        w = max(WIDTH, self.frame.winfo_reqwidth())
-        h = self.frame.winfo_reqheight() + 2
-        px, py = self.root.winfo_pointerx(), self.root.winfo_pointery()
-        sw, sh = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
-        x = min(max(px - w // 2, 8), sw - w - 8)
-        y = max(py - h - 12, 8)
-        self.root.geometry(f"{w}x{h}+{x}+{y}")
+        return (max(WIDTH, self.frame.winfo_reqwidth()),
+                self.frame.winfo_reqheight() + 2)
+
+    def _toggle_mics(self):
+        """Grow upward, keeping the bottom edge where it is — the flyout is
+        anchored to the tray, so moving that edge makes it jump."""
+        bottom = self.root.winfo_rooty() + self.root.winfo_height()
+        left = self.root.winfo_rootx()
+        self._mics_open = not self._mics_open
+        self._build_body()
+        w, h = self._size()
+        self.root.geometry(f"{w}x{h}+{left}+{max(bottom - h, 8)}")
+
+    def _show(self):
+        self._build_body()
+        w, h = self._size()
+        ui.place_near_cursor(self.root, w, h)
         self.root.deiconify()
         self.root.lift()
         self.root.focus_force()
