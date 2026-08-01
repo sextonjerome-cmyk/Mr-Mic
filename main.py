@@ -16,6 +16,7 @@ from pystray import Menu, MenuItem as Item
 
 import audio
 import battery
+import btaudio
 import chime
 import config
 import hotkeys
@@ -420,6 +421,38 @@ class MrMic:
         """One radio row per configured device, greyed out when unplugged."""
         return [self._device_row(d) for d in self.devices()]
 
+    # -- bluetooth ---------------------------------------------------------
+
+    def _bt_row(self, device):
+        """Connect/disconnect one paired Bluetooth device. Disconnecting hands
+        the headphones back to your phone without taking the radio — and every
+        other paired thing — down with it."""
+        name = device["name"]
+        connected = device["connected"]
+
+        def on_click(icon, item):
+            def work():
+                if btaudio.set_connected(device, not connected):
+                    self._notify(f"{name} {'disconnected' if connected else 'connected'}")
+                else:
+                    self._notify(f"Could not {'disconnect' if connected else 'connect'} {name}")
+            # a second or two of blocking — never on the menu thread
+            threading.Thread(target=work, daemon=True).start()
+
+        return Item(name, on_click, checked=lambda item: connected)
+
+    def _bt_menu(self):
+        def items():
+            try:
+                devices = btaudio.paired()
+            except Exception:
+                log.exception("bluetooth: could not list devices")
+                return [Item("Bluetooth unavailable", None, enabled=False)]
+            if not devices:
+                return [Item("Nothing paired", None, enabled=False)]
+            return [self._bt_row(d) for d in devices]
+        return Menu(items)
+
     def _menu_items(self):
         items = []
         if self._battery_wanted():
@@ -435,6 +468,7 @@ class MrMic:
                  checked=lambda item: bool(audio.get_mute(audio.RENDER))),
             Item("🎤 Mute microphone", self.toggle_mic_mute,
                  checked=lambda item: bool(audio.get_mute(audio.CAPTURE))),
+            Item("📶 Bluetooth", self._bt_menu()),
             Item("Mixer (middle-click)", lambda: self.mixer.show()),
             Item("All Windows devices", Menu(
                 Item("Output", self._device_menu(audio.RENDER)),

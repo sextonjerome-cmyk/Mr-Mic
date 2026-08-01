@@ -65,6 +65,7 @@ of the feature; `tray_double_click: "off"` removes both.
 - `main.py` — wiring: MrMic class, tray menu, device watch thread, dark-menu opt-in
 - `audio.py` — enumerate endpoints, get/set Windows defaults (IPolicyConfig), mute
 - `battery.py` — HyperX dongle battery over HID (doubles as on/off signal)
+- `btaudio.py` — connect/disconnect paired Bluetooth audio devices (no admin needed)
 - `ui.py` — the one Tk thread; mixer and settings are Toplevels on it
 - `settings_ui.py` — settings window: hotkey capture, add/edit/reorder/disable devices
 - `mixer.py` — middle-click flyout: per-device master + per-app volume sliders

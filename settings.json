@@ -51,9 +51,9 @@
       "label": "Skullcandy Hesh ANC",
       "icon": "headphones",
       "output_match": "Headphones (Hesh ANC",
-      "output_id": "{0.0.0.00000000}.{20b80afb-c038-4dd5-93ab-cbf5641fe0db}",
-      "input_match": "",
-      "input_id": null,
+      "output_id": "{0.0.0.00000000}.{d34cbe0e-2c9d-4f23-8a00-56c7c19d074c}",
+      "input_match": "Headset (Hesh ANC",
+      "input_id": "{0.0.1.00000000}.{a08409d8-2862-4d96-982b-5a7987994126}",
       "enabled": true,
       "auto": true,
       "detect": "endpoint"

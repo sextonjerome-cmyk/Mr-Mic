@@ -1,5 +1,24 @@
 # Audio + hardware rules
 
+## Bluetooth
+- Disconnecting one paired device beats turning the radio off — the radio takes every
+  other paired thing with it (Jerome has four serial-over-Bluetooth COM ports).
+  `BluetoothSetServiceState` on the A2DP Audio Sink GUID
+  (`0000110B-0000-1000-8000-00805F9B34FB`) does it, **and needs no admin rights** —
+  verified 2026-08-01, both directions returned ERROR_SUCCESS as a normal user. The
+  hands-free GUID (`...111E...`) returned 87 on the same call; don't assume it works.
+- **Declare `argtypes`/`restype` on every `bthprops.cpl` call.** `BluetoothFindFirstDevice`
+  returns a 64-bit HANDLE; without a declared restype ctypes truncates it to 32 bits and
+  the next call is an access violation.
+- Bluetooth headphones expose two output endpoints: `Headphones (…)` is A2DP stereo,
+  `Headset (…)` is hands-free — mic works, audio turns to mush. Default a device's output
+  at the A2DP one. Leaving `input_match` empty means "don't touch the mic", which is the
+  right default; Jerome opted into the Hesh mic on 2026-08-01 and found it acceptable.
+- "Connected" in Windows is not the same as "audio actually flows". A stale Bluetooth link
+  leaves the endpoint Active and default while streams silently render elsewhere (seen
+  2026-08-01). To prove where audio really goes, enumerate `IAudioSessionManager2` sessions
+  per endpoint and filter to your own PID — the default endpoint reported by Windows lies.
+
 ## Switching default devices
 - Default-device changes go through `IPolicyConfig.SetDefaultEndpoint`
   (CLSID `{870af99c-171d-4f9e-af0d-e63df40c2bc9}`) in `audio.py` — undocumented but
