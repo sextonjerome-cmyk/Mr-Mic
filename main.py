@@ -424,22 +424,29 @@ class MrMic:
     # -- bluetooth ---------------------------------------------------------
 
     def _bt_row(self, device):
-        """Connect/disconnect one paired Bluetooth device. Disconnecting hands
-        the headphones back to your phone without taking the radio — and every
-        other paired thing — down with it."""
+        """Disconnect one paired Bluetooth device — that hands the headphones
+        back to your phone without taking the radio, and every other paired
+        thing, down with it.
+
+        Only disconnect. `BluetoothSetServiceState` can release a live device
+        but cannot dial an idle one back up: it returns ERROR_INVALID_PARAMETER
+        whether the radio handle is NULL or real, and nothing connects (tested
+        2026-08-02 over 75 s, with no competing phone). Connecting has to go
+        through Windows, so the menu offers that instead of a dead click."""
         name = device["name"]
-        connected = device["connected"]
+        if not device["connected"]:
+            return Item(f"{name}  (not connected)", None, enabled=False)
 
         def on_click(icon, item):
             def work():
-                if btaudio.set_connected(device, not connected):
-                    self._notify(f"{name} {'disconnected' if connected else 'connected'}")
+                if btaudio.set_connected(device, False):
+                    self._notify(f"{name} disconnected")
                 else:
-                    self._notify(f"Could not {'disconnect' if connected else 'connect'} {name}")
+                    self._notify(f"Could not disconnect {name}")
             # a second or two of blocking — never on the menu thread
             threading.Thread(target=work, daemon=True).start()
 
-        return Item(name, on_click, checked=lambda item: connected)
+        return Item(f"{name}  — disconnect", on_click)
 
     def _bt_menu(self):
         def items():
@@ -448,9 +455,13 @@ class MrMic:
             except Exception:
                 log.exception("bluetooth: could not list devices")
                 return [Item("Bluetooth unavailable", None, enabled=False)]
-            if not devices:
-                return [Item("Nothing paired", None, enabled=False)]
-            return [self._bt_row(d) for d in devices]
+            rows = [self._bt_row(d) for d in devices]
+            if not rows:
+                rows = [Item("Nothing paired", None, enabled=False)]
+            rows.append(Menu.SEPARATOR)
+            rows.append(Item("Windows Bluetooth settings…  (to connect)",
+                             lambda: os.startfile("ms-settings:bluetooth")))
+            return rows
         return Menu(items)
 
     def _menu_items(self):

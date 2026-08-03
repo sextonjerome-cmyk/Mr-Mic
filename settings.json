@@ -27,9 +27,9 @@
       "label": "HyperX Headset",
       "icon": "headset",
       "output_match": "HyperX",
-      "output_id": "{0.0.0.00000000}.{1d962cfa-443c-4966-a61d-aaeba7816514}",
+      "output_id": "{0.0.0.00000000}.{676f2d83-f3aa-4a6e-89cb-24df9030623f}",
       "input_match": "HyperX",
-      "input_id": "{0.0.1.00000000}.{3304690b-d782-4768-a6f7-434054ef11c3}",
+      "input_id": "{0.0.1.00000000}.{ea4e61af-0570-4b4b-8ca0-de37c7ea4a30}",
       "enabled": true,
       "auto": true,
       "detect": "battery"
@@ -52,8 +52,8 @@
       "icon": "headphones",
       "output_match": "Headphones (Hesh ANC",
       "output_id": "{0.0.0.00000000}.{d34cbe0e-2c9d-4f23-8a00-56c7c19d074c}",
-      "input_match": "Headset (Hesh ANC",
-      "input_id": "{0.0.1.00000000}.{a08409d8-2862-4d96-982b-5a7987994126}",
+      "input_match": "",
+      "input_id": null,
       "enabled": true,
       "auto": true,
       "detect": "endpoint"

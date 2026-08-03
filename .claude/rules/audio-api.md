@@ -4,9 +4,16 @@
 - Disconnecting one paired device beats turning the radio off — the radio takes every
   other paired thing with it (Jerome has four serial-over-Bluetooth COM ports).
   `BluetoothSetServiceState` on the A2DP Audio Sink GUID
-  (`0000110B-0000-1000-8000-00805F9B34FB`) does it, **and needs no admin rights** —
-  verified 2026-08-01, both directions returned ERROR_SUCCESS as a normal user. The
-  hands-free GUID (`...111E...`) returned 87 on the same call; don't assume it works.
+  (`0000110B-0000-1000-8000-00805F9B34FB`) does it, **and needs no admin rights**.
+- **It disconnects only. It cannot connect an idle device.** Enabling the service on a
+  device that is not currently linked returns 87 (ERROR_INVALID_PARAMETER) with a NULL
+  radio handle *and* with a real one, and nothing connects — watched 75 s with no
+  competing phone (2026-08-02). Connecting must go through Windows
+  (`os.startfile("ms-settings:bluetooth")`).
+  The trap that hid this: disable-then-enable within a few seconds *does* return
+  ERROR_SUCCESS both ways, because the link has not torn down yet. That is not proof
+  connect works — test it cold, from genuinely disconnected.
+- The hands-free GUID (`...111E...`) also returns 87; don't assume it works.
 - **Declare `argtypes`/`restype` on every `bthprops.cpl` call.** `BluetoothFindFirstDevice`
   returns a 64-bit HANDLE; without a declared restype ctypes truncates it to 32 bits and
   the next call is an access violation.
